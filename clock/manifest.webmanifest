@@ -1,7 +1,7 @@
 {
-    "name": "Worker",
-    "short_name": "Worker",
-    "description": "Beautiful Worker",
+    "name": "Clock",
+    "short_name": "Clock",
+    "description": "Beautiful Clock",
     "start_url": "./index.html",
     "scope": "./",
     "icons": [
@@ -52,7 +52,7 @@
         }
     ],
     "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "background_color": "#000000",
     "display": "standalone",
     "orientation": "landscape"
 }

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>ColorCube</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" sizes="180x180" href="res/art/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="res/art/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="res/art/icons/favicon-16x16.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="mask-icon" href="res/art/icons/safari-pinned-tab.svg" color="#5bbad5">
+  <link rel="shortcut icon" href="res/art/icons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <script src="components/uic-colorcube.js"></script>
+  <script src="main.js" defer></script>
+  <style>
+    body, html {
+      height: 100%;
+      width:100%;
+      margin:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-family:verdana, sans-serif;
+    }
+    body {
+      /*background-color:#222;*/
+      background-color:#222;
+    }
+    .wrapper {
+      position:relative;
+      display:grid;
+      width:86%;
+      height:86%;
+      max-width:1024px;
+      grid-gap:16px 32px;;
+    }
+    uic-colorcube {
+/* 
+      width:100%;
+      height:100%;
+ */
+      box-sizing:border-box;
+      border:1px solid #ffffff22;
+/*       border:1px solid red; */
+    }
+    div.tabs {
+      display:flex;
+    }
+    div.tabs > div {
+      padding:4px 8px;
+      border:1px solid #ffffff44;
+      border-bottom:none;
+      cursor:pointer;
+    }
+
+    div.tabs > div.active {
+      background:#ffffff18;
+    }
+
+    div.tab-content {
+      position:relative;
+      border:1px solid #ffffff44;
+      margin-top:-1px;
+      flex:1;
+    }
+
+    div.tab-content > div {
+      display:none;
+      padding:4px 8px;
+    }
+    div.tab-content > div.active {
+      display:block;
+    }
+
+    div.settings {
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction: column;
+      box-sizing:border-box;
+/*       border:1px solid #ffffff22; */
+      justify-content:center;
+      color:#fff;
+      font-size:88%;
+    }
+    div.settings > div {
+      width:100%;
+      max-width:320px;
+    }
+    div.settings > div input{
+      width:100%;
+    }
+    @media(max-width: 480px) {
+      .wrapper {
+        grid-template-rows:1fr 1fr;
+      }
+    }
+    @media(min-width: 481px) {
+      .wrapper {
+        grid-template-columns:1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div id="selectedSurface" style="position:absolute; left:1px; top:1px; padding:4px 8px; background-color:#ffffff22; color:#fff; min-width:40px;">front</div>
+  <uic-colorcube
+      rotatable
+      rotation-x="-15"
+      rotation-y="35"
+      opacity="0.5"
+      shrink="0"
+      explode="0"
+      perspective="0"
+      border-width="0.2"
+      border-radius="0"
+  ></uic-colorcube>
+  <div class="settings">
+    <div class="tabs">
+      <div class="active">Attribute</div>
+      <div>Farbvarianz</div>
+    </div>
+    <div class="tab-content">
+      <div class="active">
+        <div>
+          Perspektive:<br>
+          <input data-property="perspective" type="range" min="-1" max="1" step="0.01" value="0">
+        </div>
+        <div>
+          Deckkraft:<br>
+          <input data-property="opacity" type="range" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div>
+          Rahmerundung:<br>
+          <input data-property="borderRadius" type="range" min="0" max="1" step="0.01" value="0">
+        </div>
+        <div>
+          Rahmenbreite:<br>
+          <input data-property="borderWidth" type="range" min="0" max="1" step="0.01" value="0.4">
+        </div>
+        <div>
+          Explode:<br>
+          <input data-property="explode" type="range" min="0" max="1" step="0.01" value="0">
+        </div>
+        <div>
+          Shrink:<br>
+          <input data-property="shrink" type="range" min="0" max="1" step="0.01" value="0">
+        </div>
+        <div>
+          Move
+          <input data-property="moveSurface" type="range" value="1" min="-1" max="1" step="0.01">
+        </div>
+      </div>
+      <div>
+        <div>
+          Rot Min
+          <input data-property="redMin" type="range" value="0" min="0" max="255" step="1">
+        </div>
+        <div>
+          Rot Max
+          <input data-property="redMax" type="range" value="255" min="0" max="255" step="1">
+        </div>
+        <div>
+          Grün Min
+          <input data-property="greenMin" type="range" value="0" min="0" max="255" step="1">
+        </div>
+        <div>
+          Grün Max
+          <input data-property="greenMax" type="range" value="255" min="0" max="255" step="1">
+        </div>
+        <div>
+          Blau Min
+          <input data-property="blueMin" type="range" value="0" min="0" max="255" step="1">
+        </div>
+        <div>
+          Blau Max
+          <input data-property="blueMax" type="range" value="255" min="0" max="255" step="1">
+        </div>
+        <hr>
+        <div style="padding-top:8px;">
+          <button data-action="preset-standard">Standard</button>&nbsp;
+          <button data-action="preset-orange">Orange</button>&nbsp;
+          <button data-action="preset-green">Green</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  let tabs = document.querySelectorAll('div.tabs > div');
+  let tabContent = document.querySelectorAll('div.tab-content > div');
+  tabs.forEach(function(elm, idx) {
+    elm.addEventListener('click', function() {
+      tabs.forEach(function(obj) {
+        obj.classList.remove('active');
+      });
+      elm.classList.add('active');
+      tabContent.forEach(function(obj) {
+        obj.classList.remove('active');
+      });
+      tabContent.item(idx).classList.add('active');
+    });
+  });
+
+  let colorCube = document.querySelector('uic-colorcube');
+  colorCube.bind(document.querySelector('input[data-property="perspective"]'), 'perspective');
+  colorCube.bind(document.querySelector('input[data-property="opacity"]'), 'opacity');
+  colorCube.bind(document.querySelector('input[data-property="borderRadius"]'), 'borderRadius');
+  colorCube.bind(document.querySelector('input[data-property="borderWidth"]'), 'borderWidth');
+  colorCube.bind(document.querySelector('input[data-property="explode"]'), 'explode');
+  colorCube.bind(document.querySelector('input[data-property="shrink"]'), 'shrink');
+  colorCube.bind(document.querySelector('input[data-property="moveSurface"]'), 'moveSurface');
+  colorCube.bind(document.querySelector('input[data-property="redMin"]'), 'redMin');
+  colorCube.bind(document.querySelector('input[data-property="redMax"]'), 'redMax');
+  colorCube.bind(document.querySelector('input[data-property="greenMin"]'), 'greenMin');
+  colorCube.bind(document.querySelector('input[data-property="greenMax"]'), 'greenMax');
+  colorCube.bind(document.querySelector('input[data-property="blueMin"]'), 'blueMin');
+  colorCube.bind(document.querySelector('input[data-property="blueMax"]'), 'blueMax');
+
+  let bStandard = document.querySelector('button[data-action="preset-standard"]');
+  bStandard.addEventListener('click', function() {
+    document.querySelector('input[data-property="redMin"]').value = 0;
+    document.querySelector('input[data-property="redMax"]').value = 255;
+    document.querySelector('input[data-property="greenMin"]').value = 0;
+    document.querySelector('input[data-property="greenMax"]').value = 255;
+    document.querySelector('input[data-property="blueMin"]').value = 0;
+    document.querySelector('input[data-property="blueMax"]').value = 255;
+
+    colorCube.redMin = 0;
+    colorCube.redMax = 255;
+    colorCube.greenMin = 0;
+    colorCube.greenMax = 255;
+    colorCube.blueMin = 0;
+    colorCube.blueMax = 255;
+  });
+  let bOrange = document.querySelector('button[data-action="preset-orange"]');
+  bOrange.addEventListener('click', function() {
+    document.querySelector('input[data-property="redMin"]').value = 199;
+    document.querySelector('input[data-property="redMax"]').value = 255;
+    document.querySelector('input[data-property="greenMin"]').value = 42;
+    document.querySelector('input[data-property="greenMax"]').value = 115;
+    document.querySelector('input[data-property="blueMin"]').value = 0;
+    document.querySelector('input[data-property="blueMax"]').value = 28;
+
+    colorCube.redMin = 199;
+    colorCube.redMax = 255;
+    colorCube.greenMin = 42;
+    colorCube.greenMax = 115;
+    colorCube.blueMin = 0;
+    colorCube.blueMax = 28;
+  });
+  let bGreen = document.querySelector('button[data-action="preset-green"]');
+  bGreen.addEventListener('click', function() {
+    document.querySelector('input[data-property="redMin"]').value = 0;
+    document.querySelector('input[data-property="redMax"]').value = 34;
+    document.querySelector('input[data-property="greenMin"]').value = 50;
+    document.querySelector('input[data-property="greenMax"]').value = 255;
+    document.querySelector('input[data-property="blueMin"]').value = 0;
+    document.querySelector('input[data-property="blueMax"]').value = 38;
+
+    colorCube.redMin = 0;
+    colorCube.redMax = 34;
+    colorCube.greenMin = 50;
+    colorCube.greenMax = 255;
+    colorCube.blueMin = 0;
+    colorCube.blueMax = 38;
+  });
+
+  // document.querySelector('button[data-property="selectSurface"]').addEventListener('click', function() { colorCube.emphasizeSelectedSurface(); console.log('show') } );
+  // document.querySelector('button[data-property="deSelectSurface"]').addEventListener('click', function() { colorCube.deEmphasizeSelectedSurface(); console.log('show') } );
+
+  colorCube.surfaceSelectionCallback = function(elm, id) {
+    document.querySelector('#selectedSurface').innerHTML = id;
+    document.querySelector('input[data-property="moveSurface"]').value = 1;
+  }
+</script>
+</body>
+</html>

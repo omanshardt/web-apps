@@ -1,5 +1,7 @@
 CACHE MANIFEST
 
+# deprecated: caches are handled within the .manifest-file
+
 # Version 10
 # https://stackoverflow.com/questions/13302501/html5-web-app-not-caching-when-added-to-home-screen-in-ios
 
