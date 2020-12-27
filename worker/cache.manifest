@@ -1,0 +1,17 @@
+CACHE MANIFEST
+
+# Version 10
+# https://stackoverflow.com/questions/13302501/html5-web-app-not-caching-when-added-to-home-screen-in-ios
+
+res/art/icons/android-chrome-192x192.png
+res/art/icons/android-chrome-512x512.png
+res/art/icons/apple-touch-icon.png
+res/art/icons/favicon-32x32.png
+res/art/icons/favicon-16x16.png
+res/art/icons/favicon.ico
+res/art/icons/mstile-150x150.png
+res/art/icons/safari-pinned-tab.svg
+res/art/icons/browserconfig.xml
+
+NETWORK:
+*
