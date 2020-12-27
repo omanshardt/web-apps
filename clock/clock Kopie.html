@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Clock</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script src="components/uic-clock.js"></script>
+</head>
+<body style="background:#000">
+    <template id="template1">
+        <h1>This is the section's header</h1>
+        <p>THis is the section's content</p>
+    </template>
+    <template id="template2">
+      <script>
+        const button = document.getElementById('click-me');
+        button.addEventListener('click', event => alert(event));
+      </script>
+      <style>
+        #click-me {
+          all: unset;
+          background: tomato;
+          border: 0;
+          border-radius: 4px;
+          color: white;
+          font-family: Helvetica;
+          font-size: 1.5rem;
+          padding: .5rem 1rem;
+        }
+      </style>
+      <button id="click-me">Log click event</button>
+    </template>
+    
+    <span style="
+        font-family:arial;
+        font-size:14px;
+        line-height:2;
+        text-transform:uppercase;
+        color:#ccc;
+    ">
+        <a href="" style="text-decoration:none; color:inherit;">Home</a> | <a href="" style="text-decoration:none; color:inherit;">Produkte</a> | <a href="" style="text-decoration:none; color:inherit;">Admin</a> | <uic-clock digital></uic-clock> | <a href="" style="text-decoration:none; color:inherit;">Logout</a>
+    </span>
+
+    <hr>
+
+    <uic-clock digital style="font-size:432px; font-family:arial; font-weight:bold; background:#000; color:#ccc"></uic-clock>
+
+
+
+<!-- 
+    <span style="
+        font-family:verdana;
+        font-size:12px;
+        outline:1px solid red;
+        background:hotpink;
+        line-height:1
+    ">
+        Digital
+        <span style="
+            outline:1px solid green;
+            display:inline;
+            background:yellow
+        ">
+            Digital</span>
+        Digital
+    </span>
+ -->
+</body>
+<script>
+//         setTimeout(function() {
+//             document.querySelector('uic-clock').stopTime();
+//         }, 4000)
+//         setTimeout(function() {
+//             document.querySelector('uic-clock').startTime();
+//         }, 8000)
+</script>
+</html>
