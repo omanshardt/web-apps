@@ -1,6 +1,8 @@
+const CACHE_NAME = 'uic-clock-cache-v1';
+
 self.addEventListener('install', function(e) {
  e.waitUntil(
-   caches.open('my-cache').then(function(cache) {
+   caches.open(CACHE_NAME).then(function(cache) {
      return cache.addAll([
       'main.js',
       'index.html',
@@ -20,7 +22,6 @@ self.addEventListener('install', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-  console.log(e.request.url);
   e.respondWith(
     caches.match(e.request).then(function(response) {
       return response || fetch(e.request);

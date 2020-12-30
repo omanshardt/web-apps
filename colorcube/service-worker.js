@@ -1,6 +1,6 @@
 self.addEventListener('install', function(e) {
  e.waitUntil(
-   caches.open('my-cache').then(function(cache) {
+   caches.open('uic-colorcube-v1').then(function(cache) {
      return cache.addAll([
       'main.js',
       'index.html',
@@ -20,7 +20,6 @@ self.addEventListener('install', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-  console.log(e.request.url);
   e.respondWith(
     caches.match(e.request).then(function(response) {
       return response || fetch(e.request);
