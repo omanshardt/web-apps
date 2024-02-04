@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Clock</title>
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#222222" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" sizes="180x180" href="res/art/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="res/art/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="res/art/icons/favicon-16x16.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="mask-icon" href="res/art/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="res/art/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <script src="components/ab-clock.js"></script>
+    <script src="main.js" defer></script>
+    <style>
+        html {
+            height:100%;
+        }
+        body {
+            margin:0;
+            height:100%;
+            background:#222222ff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#cccccc;
+        }
+        .menue {
+            position:absolute;
+            right:20px;
+            top:20px;
+            width:10vw;
+            height:10vw;
+        }
+        @media (orientation: landscape) {
+          ab-clock {
+            font-size: 65vmin;
+          }
+        }
+
+        @media (orientation: portrait) {
+          ab-clock {
+            font-size: 65vmin;
+          }
+        
+    </style>
+</head>
+<body>
+    <ab-clock style="font-family:arial; font-weight:bold; font-size: 65vmin; margin-bottom:20px"></ab-clock>
+</body>
+</html>
