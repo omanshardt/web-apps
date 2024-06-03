@@ -93,8 +93,8 @@ class abClock extends HTMLElement {
 //         this.sr.querySelector('#mbheart').style.stroke = color;
 //         this.sr.querySelector('#mbheart-1').style.stroke = color;
 //         this.sr.querySelector('#mbheart-2').style.stroke = color;
-        this.sr.querySelector('#mbheartsolid').style.fill = '#ffffff55';
-        this.sr.querySelector('#mbcrossoutlined').style.stroke = '#ffffff55';
+        this.sr.querySelector('#mbheartsolid').style.fill = '#777';
+        this.sr.querySelector('#mbcrossoutlined').style.stroke = '#aaa';
 //        this.sr.querySelector('#mb-middle-circle').style.fill = color;
         this.sr.querySelector('span').style.whiteSpace = 'nowrap';
         this.doClock(this);

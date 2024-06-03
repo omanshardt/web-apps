@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Stopwatch</title>
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" sizes="180x180" href="res/art/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="res/art/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="res/art/icons/favicon-16x16.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="mask-icon" href="res/art/icons/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="res/art/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <script src="components/uic-clock.js"></script>
+    <script src="main.js" defer></script>
+    <style>
+        html {
+            height:100%;
+        }
+        body {
+            margin:0;
+            height:100%;
+            background:#000;
+            display:grid;
+            grid-template-rows:auto 2fr 8fr auto;
+            gap:12px;
+        }
+        .menue {
+            position:absolute;
+            right:20px;
+            top:20px;
+            width:10vw;
+            height:10vw;
+        }
+        body > div {
+            background:#804;
+            padding:20px 20px;
+        }
+        button[data-action="log-time"] {
+            font-size:4rem;
+            border-radius:200px;
+            border:1px solid #888;
+            display:block;
+            padding:8px 23px;
+            min-width:fit-content;
+            width:45%;
+            background:#eee;
+        }
+        button[data-action="log-time"]:not(:disabled) {
+            cursor:pointer;
+        }
+        button[data-action="start-pause-continue"] {
+            font-size:4rem;
+            border-radius:200px;
+            border:1px solid #888;
+            display:block;
+            padding:8px 23px;
+            min-width:fit-content;
+            width:45%;
+            cursor:pointer;
+            background:#eee;
+        }
+        button[data-action="stop"] {
+            font-size:4rem;
+            border-radius:200px;
+            border:1px solid #888;
+            display:none;
+            padding:8px 23px;
+            min-width:fit-content;
+            width:45%;
+            cursor:pointer;
+            background:#eee;
+        }
+        button:hover:not(:disabled) {
+            background:#ccc;
+        }
+        button:active:not(:disabled) {
+            background:#999;
+        }
+        div.header {
+            align-self:start;
+        }
+        div.footer {
+            display:flex;
+            gap:12px;
+            align-self:end;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button data-action="log-time" disabled>Zwischenzeit</button>
+    </div>
+    <div class="content">2</div>
+    <div class="content">2</div>
+    <div class="footer">
+        <button data-action="start-pause-continue">Start</button>
+        <button data-action="stop">Stop</button>
+    </div>
+</body>
+</html>

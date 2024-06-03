@@ -1,6 +1,6 @@
 {
-    "name": "abClock",
-    "short_name": "abClock",
+    "name": "Clock",
+    "short_name": "Clock",
     "description": "Beautiful Clock",
     "start_url": "./index.html",
     "scope": "./",
