@@ -1,7 +1,7 @@
 {
-    "name": "Clock",
-    "short_name": "Clock",
-    "description": "Beautiful Clock",
+    "name": "Stop Watch",
+    "short_name": "Stop Watch",
+    "description": "Beautiful Stop Watch",
     "start_url": "./index.html",
     "scope": "./",
     "icons": [

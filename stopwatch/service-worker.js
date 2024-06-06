@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uic-clock-cache-v1';
+const CACHE_NAME = 'uic-stopwatch-cache-v1';
 
 self.addEventListener('install', function(e) {
  e.waitUntil(
@@ -6,7 +6,6 @@ self.addEventListener('install', function(e) {
      return cache.addAll([
       'main.js',
       'index.html',
-      'components/uic-clock.js',
       "res/art/icons/android-chrome-192x192.png",
       "res/art/icons/android-chrome-512x512.png",
       "res/art/icons/apple-touch-icon.png",

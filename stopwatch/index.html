@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no viewport-fit=cover">
     <link rel="apple-touch-icon" sizes="180x180" href="res/art/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="res/art/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="res/art/icons/favicon-16x16.png">
@@ -17,7 +17,6 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
-    <script src="components/uic-clock.js"></script>
     <script src="main.js" defer></script>
     <style>
         html {
@@ -26,10 +25,10 @@
         body {
             margin:0;
             height:100%;
-            background:#000;
+            background:#d2056c;
             display:grid;
-            grid-template-rows:auto 2fr 8fr auto;
-            gap:12px;
+            grid-template-rows: 64px auto auto 4fr 4fr;
+            gap:4px;
         }
         .menue {
             position:absolute;
@@ -39,24 +38,27 @@
             height:10vw;
         }
         body > div {
-            background:#804;
-            padding:20px 20px;
+            padding:10px 60px;
         }
-        button[data-action="log-time"] {
-            font-size:4rem;
-            border-radius:200px;
+        button[data-action="log-lap-time"] {
+            font-size:2rem;
+            border-radius:12px;
             border:1px solid #888;
             display:block;
             padding:8px 23px;
             min-width:fit-content;
-            width:45%;
-            background:#eee;
+            height:100%;
+            width:100%;
+            background:#ffffff44;
         }
-        button[data-action="log-time"]:not(:disabled) {
+        button[data-action="log-lap-time"]:not(:disabled) {
             cursor:pointer;
         }
+        button[data-action="log-lap-time"]:disabled {
+            background:#ffffff11;
+        }
         button[data-action="start-pause-continue"] {
-            font-size:4rem;
+            font-size:1.6rem;
             border-radius:200px;
             border:1px solid #888;
             display:block;
@@ -67,7 +69,7 @@
             background:#eee;
         }
         button[data-action="stop"] {
-            font-size:4rem;
+            font-size:1.6rem;
             border-radius:200px;
             border:1px solid #888;
             display:none;
@@ -77,31 +79,70 @@
             cursor:pointer;
             background:#eee;
         }
+/* 
         button:hover:not(:disabled) {
             background:#ccc;
         }
+ */
         button:active:not(:disabled) {
             background:#999;
         }
         div.header {
+            display:flex;
+            gap:12px;
             align-self:start;
+        }
+        div.total-time {
+            font-size:xxx-large;
+        }
+        div.lap-time {
+            font-size:x-large;
+        }
+        div.content2 {
+            display:flex;
+            gap:12px;
+            justify-content:center;
+            align-items:center;
         }
         div.footer {
             display:flex;
             gap:12px;
-            align-self:end;
+            overflow:auto;
+            align-items:start
+        }
+        
+        .footer table {
+            width:100%;
+        }
+        .footer table tr td:first-child {
+            width:20px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button data-action="log-time" disabled>Zwischenzeit</button>
+    <div class="status">
+
     </div>
-    <div class="content">2</div>
-    <div class="content">2</div>
-    <div class="footer">
+    <div class="header">
         <button data-action="start-pause-continue">Start</button>
         <button data-action="stop">Stop</button>
+    </div>
+    <div class="content1">
+        <div class="total-time">00:00:00:000</div>
+        <div class="lap-time">00:00:00:000</div>
+    </div>
+    <div class="content2">
+        <button data-action="log-lap-time" disabled>Lap</button>
+    </div>
+    <div class="footer">
+        <table class="tbl">
+            <tr>
+                <td>1</td>
+                <td>00:00:00:000</td>
+                <td>00:00:00:000</td>
+            </tr>
+        </table>
+
     </div>
 </body>
 </html>
