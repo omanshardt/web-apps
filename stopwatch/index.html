@@ -18,6 +18,7 @@
     <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <script src="main.js" defer></script>
+    <script src="stopwatch.js" defer></script>
     <style>
         html {
             height:100%;
@@ -38,14 +39,22 @@
             height:10vw;
         }
         body > div {
+            padding:10px 40px;
+        }
+        body > div.content2 {
             padding:10px 60px;
+        }
+        button[data-action="open-settings"] {
+            border:1px solid #00000088;
+            padding:6px 12px;
+            background:transparent;
         }
         button[data-action="log-lap-time"] {
             font-size:2rem;
             border-radius:12px;
             border:1px solid #888;
             display:block;
-            padding:8px 23px;
+            padding:8px;
             min-width:fit-content;
             height:100%;
             width:100%;
@@ -93,10 +102,10 @@
             align-self:start;
         }
         div.total-time {
-            font-size:xxx-large;
+            font-size:4rem;
         }
         div.lap-time {
-            font-size:x-large;
+            font-size:2rem;
         }
         div.content2 {
             display:flex;
@@ -104,45 +113,79 @@
             justify-content:center;
             align-items:center;
         }
-        div.footer {
+        div.lap-list {
             display:flex;
             gap:12px;
             overflow:auto;
-            align-items:start
+            align-items:start;
+            font-size:1.5rem;
         }
         
-        .footer table {
+        .lap-list table {
             width:100%;
         }
-        .footer table tr td:first-child {
-            width:20px;
+        .lap-list table tr td+td {
+            padding-left:8px;
+        }
+        .lap-list table tr td:first-child {
+            width:30px;
+            text-align:right;
+        }
+        .lap-list table tr td:last-child {
+            text-align:right;
+        }
+        .modal-settings {
+            position:fixed;
+            left:0; top:0; right:0; bottom:0;
+            background:#888888ee;
+            display:none;
+            grid-template-rows: 80px 1fr 1fr 80px;
+            gap:4px;
+        }
+        .modal-settings div {
+            padding:0
+        }
+        .modal-settings div div {
+            display:flex;
+            gap:8px;
+            align-items:center;
+            font-size:2rem;
+        }
+        .modal-settings input {
+            width:32px;
+            height:32px;
         }
     </style>
 </head>
 <body>
     <div class="status">
-
+        <button data-action="open-settings">...</button>
     </div>
     <div class="header">
         <button data-action="start-pause-continue">Start</button>
         <button data-action="stop">Stop</button>
     </div>
-    <div class="content1">
-        <div class="total-time">00:00:00:000</div>
-        <div class="lap-time">00:00:00:000</div>
+    <div class="time-display">
+        <div class="total-time">00:00:00:00</div>
+        <div class="lap-time">00:00:00:00</div>
     </div>
     <div class="content2">
         <button data-action="log-lap-time" disabled>Lap</button>
     </div>
-    <div class="footer">
+    <div class="lap-list">
         <table class="tbl">
             <tr>
                 <td>1</td>
-                <td>00:00:00:000</td>
-                <td>00:00:00:000</td>
+                <td>00:00:00:00</td>
+                <td>00:00:00:00</td>
             </tr>
         </table>
-
+    </div>
+    <div class="modal-settings">
+        <div></div>
+        <div><div><input type="checkbox" data-action="use-location" name="use-location"> Use Location</div></div>
+        <div><div><input type="checkbox" data-action="use-tracking" name="use-tracking" disabled> Use Tracking</div></div>
+        <div><button data-action="close-settings">Schliessen</button></div>
     </div>
 </body>
 </html>
