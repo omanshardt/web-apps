@@ -17,7 +17,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-config" content="res/art/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
-    <script src="main.js" defer></script>
+    <script src="_main.js" defer></script>
     <script src="stopwatch.js" defer></script>
     <style>
         html {
@@ -28,8 +28,9 @@
             height:100%;
             background:#d2056c;
             display:grid;
-            grid-template-rows: 64px auto auto 4fr 4fr;
+            grid-template-rows: 80px auto auto 4fr 4fr;
             gap:4px;
+            font-family:arial;
         }
         .menue {
             position:absolute;
@@ -39,14 +40,24 @@
             height:10vw;
         }
         body > div {
-            padding:10px 40px;
+            padding:10px 32px;
+        }
+        body > div.status {
+            padding-top:24px;
+            display:flex;
+            gap:8px;
+            align-items:center
+        }
+        body > div.status .state {
+            font-size:1.75rem;
         }
         body > div.content2 {
             padding:10px 60px;
         }
         button[data-action="open-settings"] {
             border:1px solid #00000088;
-            padding:6px 12px;
+            border-radius:40px;
+            padding:12px 12px;
             background:transparent;
         }
         button[data-action="log-lap-time"] {
@@ -113,14 +124,8 @@
             justify-content:center;
             align-items:center;
         }
-        div.lap-list {
-            display:flex;
-            gap:12px;
-            overflow:auto;
-            align-items:start;
-            font-size:1.5rem;
-        }
         
+/* 
         .lap-list table {
             width:100%;
         }
@@ -133,6 +138,29 @@
         }
         .lap-list table tr td:last-child {
             text-align:right;
+        }
+ */
+        .lap-list .list-item {
+            display:grid;
+            grid-template-columns: 30px 1fr 1fr;
+            border:1px solid #00000044;
+            padding:4px 8px;
+            gap:16px;
+            border-radius:30px;
+            font-size:1.6rem;
+            background:#00000033;
+            color:#fff;
+        }
+        .lap-list .list-item:first-child {
+            margin-bottom:18px;
+        }
+        .lap-list .list-item + .list-item {
+            margin-top:6px;
+        }
+        .lap-list .list-item div:first-child{
+            text-align:right;
+        }
+        .lap-list .list-item div {
         }
         .modal-settings {
             position:fixed;
@@ -159,7 +187,8 @@
 </head>
 <body>
     <div class="status">
-        <button data-action="open-settings">...</button>
+        <button data-action="open-settings">•••</button>
+        <div class="state"></div>
     </div>
     <div class="header">
         <button data-action="start-pause-continue">Start</button>
@@ -173,13 +202,21 @@
         <button data-action="log-lap-time" disabled>Lap</button>
     </div>
     <div class="lap-list">
-        <table class="tbl">
-            <tr>
-                <td>1</td>
-                <td>00:00:00:00</td>
-                <td>00:00:00:00</td>
-            </tr>
-        </table>
+        <div class="list-item">
+            <div>12</div>
+            <div>00:00:00:00</div>
+            <div>00:00:00:00</div>
+        </div>
+        <div class="list-item">
+            <div>2</div>
+            <div>00:00:00:00</div>
+            <div>00:00:00:00</div>
+        </div>
+        <div class="list-item">
+            <div>1</div>
+            <div>00:00:00:00</div>
+            <div>00:00:00:00</div>
+        </div>
     </div>
     <div class="modal-settings">
         <div></div>
