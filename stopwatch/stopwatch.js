@@ -74,9 +74,9 @@
 
     /**
      * This returns the latest event tracking object that meets the conditions starting at the provided index, so could be that already the object at the provided index meets the conditions
-     * @param {string|Array} trackingEvent The event that we want to query for, could also be an array of events
+     * @param {string|Array|null} trackingEvent The event that we want to query for, could also be an array of events or null if we want to query for the latest event
      * @param {number|null} index The index to start from. If not specified, the search starts from the last index of the trackedAction array
-     * @returns object|null with index of the found event and the fond object. Returns null, if nothing is found
+     * @returns object with index of the found event and the found object. If nothing is found the dataObject property of the returned object is null
      */
     const getLastTrackingObject = (trackingEvent = null, index = null) => {
         if (typeof trackingEvent === 'string') {
@@ -96,15 +96,15 @@
                 return obj;
             }
         }
-        return {index: start, dataObject:  null};;
+        return {index: start, dataObject:  null};
     }
     yolo3 = getLastTrackingObject;
 
     /**
      * This returns the latest previous event tracking object that meets the conditions
-     * @param {string|Array} trackingEvent The event that we want to query for, could also be an array of events
+     * @param {string|Array|null} trackingEvent The event that we want to query for, could also be an array of events or null if we want to query for the previous event no matter what type it is
      * @param {number|null} index The index to start from. If not specified, the search starts from the last index of the trackedAction array
-     * @returns object|null with index of the found event and the fond object. Returns null, if nothing is found
+     * @returns object with index of the found event and the fond object. If nothing is found the dataObject property of the returned object is null
      */
     const getPreviousTrackingObject = (trackingEvent = null, index = null) => {
         let start = trackedAction.length - 2;
@@ -117,7 +117,7 @@
 
     /**
      * 
-     * @param {string|Array} trackingEvent The event that we wat to query for, could lso be an array of events
+     * @param {string|Array} trackingEvent The event that we want to query for, could also be an array of events
      * @returns array all racking event objects that meet the specified events
      */
     const filterTrackingObjectWithSpecifiedEvent = (trackingEvent) => {
@@ -134,7 +134,7 @@
     /**
      * This returns the total elapsed time
      * @param {object} dataObject tracking event. This is the reference event to which the time should be measured.
-     * @returns timedifference in milliseconds
+     * @returns object with milliseconds and formatted time with the time difference between the dataObject and the first tracking event (start)
      */
     const getTotalElapsedTime = (dataObject = null) => {
         let referenceObject = dataObject ?? trackedAction[trackedAction.length - 1];
@@ -145,10 +145,21 @@
         };
     }
 
-    const getTimeSincePreviousEvent = (dataObject = null) => {
+    /**
+     * This returns the time since the specified previous tracking event
+     * @param {string|array|null} trackingEvent 
+     * @param {object|null} dataObject tracking event. This is the reference event to which the time should be measured. If specified the search starts from this tracking event's predecessor on backwards, if not specified the search startsfrom the last tracking event's predecessor
+     * @returns object with milliseconds and formatted time with the time difference between the dataObject and the latest tracking event with the specified evnt.
+     */
+    const getTimeSincePreviousEvent = (trackingEvent = null, dataObject = null) => {
         let referenceObject = dataObject ?? trackedAction[trackedAction.length - 1];
-        let previousObject = getPreviousTrackingObject(null, trackedAction.indexOf(referenceObject));
-        let milliseconds = (previousObject.dataObject) ? referenceObject.timestamp - previousObject.dataObject.timestamp : 0;
+        // in case index would be below 0 (when dataObject ist first object) we set the index to 1 (and thus return the start object) 
+        let previousObject = getPreviousTrackingObject(trackingEvent, Math.max(trackedAction.indexOf(referenceObject), 1));
+        // in case we do not find an object that meets the conditions then we take the start object
+        if (!previousObject.dataObject) {
+            previousObject = { index:0, dataObject: trackedAction[0] };
+        }
+        let milliseconds = referenceObject.timestamp - previousObject.dataObject.timestamp;
         return {
             milliseconds: milliseconds,
             formattetdTime: formatTime(milliseconds)
@@ -328,29 +339,21 @@
         dataObject.totalElapsedTime = totalElapsedTime.milliseconds;
         dataObject.fTotalElapsedTime = totalElapsedTime.formattetdTime;
 
-        // total time since last tracking event (including positionlog events)
-        // for the first tracking event there is no previous event, what is indicated by 
-        let = timeSincePreviousEvent = getTimeSincePreviousEvent(dataObject);
+        // time since last tracking event (including positionlog events)
+        let = timeSincePreviousEvent = getTimeSincePreviousEvent(null, dataObject);
         dataObject.timeSincePreviousEvent = timeSincePreviousEvent.milliseconds;
         dataObject.fTimeSincePreviousEvent = timeSincePreviousEvent.formattetdTime;
 
-        // total time since last real tracking event (excluding positionlog events)
-        let lastTrackingObjectWithSpecifiedEvent = null;
-        if (lastTrackingObjectWithSpecifiedEvent = getLastTrackingObject([
+        // time since last real tracking event (excluding positionlog events)
+        let lastTrackingObjectWithSpecifiedEvent = getTimeSincePreviousEvent([
             trackingEvents.START,
             trackingEvents.CONTINUE,
             trackingEvents.PAUSE,
             trackingEvents.STOP,
             trackingEvents.LAPTIME
-            ], Math.max(trackedAction.length - 2, 0))) {
-            dataObject.timeSinceLastRealEvent = dataObject.timestamp - lastTrackingObjectWithSpecifiedEvent.dataObject.timestamp;
-            dataObject.fTimeSinceLastRealEvent = formatTime(dataObject.timeSinceLastRealEvent);
-        }
-        else {
-            // if we don't find an event with meets the defined conditions we set the totalTime as timeSinceLastRealEvent
-            dataObject.timeSinceLastRealEvent = dataObject.totalTime;
-            dataObject.fTimeSinceLastRealEvent = formatTime(dataObject.timeSinceLastRealEvent);
-        }
+        ], dataObject);
+        dataObject.timeSinceLastRealEvent = lastTrackingObjectWithSpecifiedEvent.milliseconds;
+        dataObject.fTimeSinceLastRealEvent = lastTrackingObjectWithSpecifiedEvent.formattetdTime;
     }
 
     // settings function
