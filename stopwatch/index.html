@@ -22,6 +22,7 @@
     <style>
         html {
             height:100%;
+            font-size:13px;
         }
         body {
             margin:0;
@@ -77,7 +78,9 @@
         button[data-action="log-lap-time"]:disabled {
             background:#ffffff11;
         }
-        button[data-action="start-pause-continue"] {
+        button[data-action="start-pause-continue"],
+        button[data-action="stop"],
+        button[data-action="close-settings"] {
             font-size:1.6rem;
             border-radius:200px;
             border:1px solid #888;
@@ -89,15 +92,7 @@
             background:#eee;
         }
         button[data-action="stop"] {
-            font-size:1.6rem;
-            border-radius:200px;
-            border:1px solid #888;
             display:none;
-            padding:8px 23px;
-            min-width:fit-content;
-            width:45%;
-            cursor:pointer;
-            background:#eee;
         }
 /* 
         button:hover:not(:disabled) {
@@ -140,6 +135,9 @@
             text-align:right;
         }
  */
+        .lap-list {
+            overflow:auto;
+        }
         .lap-list .list-item {
             display:grid;
             grid-template-columns: 30px 1fr 1fr;
@@ -147,15 +145,21 @@
             padding:4px 8px;
             gap:16px;
             border-radius:30px;
-            font-size:1.6rem;
+            font-size:1.2rem;
             background:#00000033;
             color:#fff;
         }
         .lap-list .list-item:first-child {
-            margin-bottom:18px;
+            margin-bottom:24px;
+            display:none;
+        }
+        .lap-list .list-item:nth-child(2) {
+            font-size:1.6rem;
+            margin-bottom:24px;
+            padding:6px 8px;
         }
         .lap-list .list-item + .list-item {
-            margin-top:6px;
+            margin-top:8px;
         }
         .lap-list .list-item div:first-child{
             text-align:right;
@@ -165,7 +169,7 @@
         .modal-settings {
             position:fixed;
             left:0; top:0; right:0; bottom:0;
-            background:#888888ee;
+            background:#888888;
             display:none;
             grid-template-rows: 80px 1fr 1fr 80px;
             gap:4px;
@@ -192,7 +196,7 @@
     </div>
     <div class="header">
         <button data-action="start-pause-continue">Start</button>
-        <button data-action="stop">Stop</button>
+        <button data-action="stop">Speichern</button>
     </div>
     <div class="time-display">
         <div class="total-time">00:00:00:00</div>
@@ -202,21 +206,6 @@
         <button data-action="log-lap-time" disabled>Lap</button>
     </div>
     <div class="lap-list">
-        <div class="list-item">
-            <div>12</div>
-            <div>00:00:00:00</div>
-            <div>00:00:00:00</div>
-        </div>
-        <div class="list-item">
-            <div>2</div>
-            <div>00:00:00:00</div>
-            <div>00:00:00:00</div>
-        </div>
-        <div class="list-item">
-            <div>1</div>
-            <div>00:00:00:00</div>
-            <div>00:00:00:00</div>
-        </div>
     </div>
     <div class="modal-settings">
         <div></div>

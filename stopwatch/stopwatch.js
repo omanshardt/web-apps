@@ -3,6 +3,15 @@
     let trackedActionSavingID = null; // this is for automated saving of the trackedAction
     let watchPositionID = null; // this is for automated position tracking
     let animationId = null; //this is for time display updates
+    let pausedTimeSinceLastLap = 0;
+    let lastLapTimeEvent = null;
+    const tplListItem = document.createElement('template');
+    tplListItem.innerHTML = `
+    <div class="list-item">
+        <div>12</div>
+        <div>00:00:00:00</div>
+        <div>00:00:00:00</div>
+    </div>`;
 
     // This is a list of logging events
     const trackingEvents = {
@@ -49,6 +58,43 @@
         return (localStorage.getItem('trackedAction')) ? JSON.parse(localStorage.getItem('trackedAction')) : null;
     }
 
+    const setPausedTimeSinceLastLap = (obj = null) => {
+        if (obj === null) {
+            pausedTimeSinceLastLap = 0;
+            localStorage.removeItem('pausedTimeSinceLastLap');
+            return;
+        }
+        pausedTimeSinceLastLap = obj;
+        localStorage.setItem('pausedTimeSinceLastLap', JSON.stringify(obj));
+    }
+    const _getPausedTimeSinceLastLap = () => {
+        return (localStorage.getItem('pausedTimeSinceLastLap')) ? JSON.parse(localStorage.getItem('pausedTimeSinceLastLap')) : 0;
+    }
+
+    const setLastLapTimeEvent = (obj = null) => {
+        if (obj === null) {
+            localStorage.removeItem('lastLapTimeEvent');
+            return;
+        }
+        localStorage.setItem('lastLapTimeEvent', JSON.stringify(obj));
+    }
+    const getLastLapTimeEvent = () => {
+        return (localStorage.getItem('lastLapTimeEvent')) ? JSON.parse(localStorage.getItem('lastLapTimeEvent')) : null;
+    }
+
+    const setListContent = (obj = null) => {
+        if (obj === null) {
+            localStorage.removeItem('listContent');
+            return;
+        }
+        localStorage.setItem('listContent', JSON.stringify(obj));
+    }
+    const getListContent = () => {
+        return (localStorage.getItem('listContent')) ? JSON.parse(localStorage.getItem('listContent')) : null;
+    }
+
+
+
     const setDefaultSettings = () => {
         if (!getAppSettings()) {
             setAppSettings({ useLocation: false, useTracking: false});
@@ -70,6 +116,14 @@
     setDefaultSettings();
     // setDefaultState();
     setDefaultTrackingAction();
+
+    const init = () => {
+        let appSettings = getAppSettings();
+        bUseLocation.checked = appSettings.useLocation;
+        bUseTracking.checked = appSettings.useTracking;
+        bUseTracking.disabled = !appSettings.useLocation;
+    }
+
 
 
     /**
@@ -104,7 +158,7 @@
      * This returns the latest previous event tracking object that meets the conditions
      * @param {string|Array|null} trackingEvent The event that we want to query for, could also be an array of events or null if we want to query for the previous event no matter what type it is
      * @param {number|null} index The index to start from. If not specified, the search starts from the last index of the trackedAction array
-     * @returns object with index of the found event and the fond object. If nothing is found the dataObject property of the returned object is null
+     * @returns object with index of the found event and the found object. If nothing is found the dataObject property of the returned object is null
      */
     const getPreviousTrackingObject = (trackingEvent = null, index = null) => {
         let start = trackedAction.length - 2;
@@ -130,6 +184,32 @@
         return fA;
     }
     yolo1 = filterTrackingObjectWithSpecifiedEvent;
+
+    const getTotalPausedTime = () => {
+        let pauses = filterTrackingObjectWithSpecifiedEvent(trackingEvents.CONTINUE);
+        let milliseconds = pauses.reduce((sum, obj) => sum + obj.timeSinceLastRealEvent, 0);
+        return {
+            milliseconds: milliseconds,
+            formattetdTime: formatTime(milliseconds)
+        };
+    } //@TODO should also accept a dataObjet
+    yolo5 = getTotalPausedTime;
+
+    const getPausedTimeSinceLastLap = (dataObject) => {
+        let trackingEvent = [trackingEvents.LAPTIME, trackingEvents.START];
+        let referenceObject = dataObject ?? trackedAction[trackedAction.length - 1];
+        // in case index would be below 0 (when dataObject ist first object) we set the index to 1 (and thus return the start object) 
+        let previousObject = getPreviousTrackingObject(trackingEvent, Math.max(trackedAction.indexOf(referenceObject), 1));
+        // in case we do not find an object that meets the conditions then we take the start object
+        if (!previousObject.dataObject) {
+            previousObject = { index:0, dataObject: trackedAction[0] };
+        }
+        let milliseconds = dataObject.totalPausedTime - previousObject.dataObject.totalPausedTime;
+        return {
+            milliseconds: milliseconds,
+            formattetdTime: formatTime(milliseconds)
+        };
+    }
 
     /**
      * This returns the total elapsed time
@@ -166,6 +246,10 @@
         };
     }
 
+
+
+
+
     /**
      * 
      * @returns current state by querying the trackedAction for the last entry with a valid state (so excluding position tarcking events)
@@ -195,7 +279,7 @@
      */
     const startTrackedActionSavingInterval = () => {
         trackedActionSavingID = setInterval(() => {
-            console.log('autosave')
+            // console.log('autosave')
             setTrackedAction(trackedAction);
         }, 5000);
     }
@@ -256,13 +340,14 @@
      * @param {string} trackingEvent The event the tracking object is being generated
      * @returns tracking event
      */
-    const createDataObject = (trackingEvent) => {
-        let timestamp = Date.now();
+    const createDataObject = (trackingEvent, ts = null) => {
+        let timestamp = ts ?? Date.now();
         let dataObject = {
             event: trackingEvent,
             timestamp: timestamp
         };
-        if (getAppSettings().useLocation) {
+        // request position data for all events except POSITIONLOG because they'll get positiondata by 
+        if (getAppSettings().useLocation && trackingEvent !== trackingEvents.POSITIONLOG) {
             // getCurrentPosition(dataObject);
             fakeGetCurrentPosition(dataObject);
         }
@@ -272,13 +357,19 @@
     /**
      * This adds a tracking event to the tracked action
      * @param {string} trackingEvent This is the event what the tracking is for
-     * @param {object} dataObj This is an optional parameter. if set the tracking object would not be created but provided
      * @returns  tracking event
      */
-    const addDataObject = (trackingEvent, dataObj = null) => {
-        let dataObject = (dataObj) ? dataObj : createDataObject(trackingEvent);
+    const addDataObject = (trackingEvent, ts = null) => {
+        let dataObject = createDataObject(trackingEvent, ts);
         trackedAction.push(dataObject);
         addTimingDataToTrackingEvent(dataObject);
+        if ([trackingEvents.START, trackingEvents.LAPTIME].includes(trackingEvent)) {
+            lastLapTimeEvent = dataObject;
+            pausedTimeSinceLastLap = 0;
+        }
+        if ([trackingEvents.CONTINUE].includes(trackingEvent)) {
+            pausedTimeSinceLastLap += dataObject.pausedTimeSinceLastLap;
+        }
         setTrackedAction(trackedAction);
         return dataObject;
     }
@@ -301,6 +392,8 @@
     const bStop = document.querySelector('button[data-action="stop"]');
     const totalTimeDisplay = document.querySelector('.total-time');
     const lapTimeDisplay = document.querySelector('.lap-time');
+    const lapList = document.querySelector('.lap-list');
+    let currentLapListItem;
     const tbl = document.querySelector('.tbl');
     const divState = document.querySelector('.state');
 
@@ -326,7 +419,6 @@
         dataObject.altitude = position.coords.altitude;
         dataObject.altitudeAccuracy = position.coords.altitudeAccuracy;
         setTrackedAction(trackedAction);
-
     }
 
     /**
@@ -337,12 +429,12 @@
         // total time since start of the tracking
         let totalElapsedTime = getTotalElapsedTime(dataObject);
         dataObject.totalElapsedTime = totalElapsedTime.milliseconds;
-        dataObject.fTotalElapsedTime = totalElapsedTime.formattetdTime;
+//         dataObject.fTotalElapsedTime = totalElapsedTime.formattetdTime;
 
         // time since last tracking event (including positionlog events)
         let = timeSincePreviousEvent = getTimeSincePreviousEvent(null, dataObject);
         dataObject.timeSincePreviousEvent = timeSincePreviousEvent.milliseconds;
-        dataObject.fTimeSincePreviousEvent = timeSincePreviousEvent.formattetdTime;
+//         dataObject.fTimeSincePreviousEvent = timeSincePreviousEvent.formattetdTime;
 
         // time since last real tracking event (excluding positionlog events)
         let lastTrackingObjectWithSpecifiedEvent = getTimeSincePreviousEvent([
@@ -353,7 +445,25 @@
             trackingEvents.LAPTIME
         ], dataObject);
         dataObject.timeSinceLastRealEvent = lastTrackingObjectWithSpecifiedEvent.milliseconds;
-        dataObject.fTimeSinceLastRealEvent = lastTrackingObjectWithSpecifiedEvent.formattetdTime;
+//         dataObject.fTimeSinceLastRealEvent = lastTrackingObjectWithSpecifiedEvent.formattetdTime;
+
+        // time since last lap
+        let lastLapObject = getTimeSincePreviousEvent([
+            trackingEvents.START,
+            trackingEvents.LAPTIME
+        ], dataObject);
+        dataObject.timeSinceLastLap = lastLapObject.milliseconds;
+//         dataObject.fTimeSinceLastLap = lastLapObject.formattetdTime;
+
+        // total paused time up to this tracking event
+        let totalPausedTime = getTotalPausedTime(dataObject);
+        dataObject.totalPausedTime = totalPausedTime.milliseconds;
+//         dataObject.fTotalPausedTime = totalPausedTime.formattetdTime;
+
+        // paused time snce last lap up to this tracking event
+        let pausedTimeSinceLastLap = getPausedTimeSinceLastLap(dataObject);
+        dataObject.pausedTimeSinceLastLap = pausedTimeSinceLastLap.milliseconds;
+//         dataObject.fPausedTimeSinceLastLap = pausedTimeSinceLastLap.formattetdTime;
     }
 
     // settings function
@@ -427,12 +537,17 @@
     // updateTimeDisplays
     const getElapsedTime = () => {
         let n = Date.now();
-        return {
-            totalElapsedTime: n - startTime,
-            netElapsedTime: (n - startTime) - totalPausedTime,
-            lastLapTime: n - lastLapTime,
-            netLastLapTime: (n - lastLapTime) - totalPausedTime,
+        let totalElapsedTime = n - trackedAction[0].timestamp;
+        let netElapsedTime = totalElapsedTime - trackedAction[trackedAction.length - 1].totalPausedTime;
+        let currentLapTime = n - lastLapTimeEvent.timestamp;
+        let netCurrentLapTime = currentLapTime - pausedTimeSinceLastLap;
+        let ret = {
+            totalElapsedTime: totalElapsedTime,
+            netElapsedTime: netElapsedTime,
+            currentLapTime: currentLapTime,
+            netCurrentLapTime: netCurrentLapTime
         }
+        return ret;
     }
     
     /**
@@ -452,27 +567,36 @@
         return `${strHour}:${strMin}:${strSec},${strMili}`;
     }
 
-    const updateGui = () => {
+    const updateTimeDisplays = () => {
         let elapsedTimes = getElapsedTime();
         let netElapsedTimeFormatted = formatTime(elapsedTimes.netElapsedTime);
-        let lastLapTimeFormatted = formatTime(elapsedTimes.lastLapTime);
+        let netcurrentLapTimeFormatted = formatTime(elapsedTimes.netCurrentLapTime);
         totalTimeDisplay.innerHTML = netElapsedTimeFormatted;
-        lapTimeDisplay.innerHTML = lastLapTimeFormatted;
-        animationId = requestAnimationFrame(function() { updateGui() });
+        lapTimeDisplay.innerHTML = netcurrentLapTimeFormatted;
+
+        currentLapListItem.querySelector('div:nth-child(3)').textContent = netElapsedTimeFormatted;
+        currentLapListItem.querySelector('div:nth-child(2)').textContent = netcurrentLapTimeFormatted;
+
+        animationId = requestAnimationFrame(function() { updateTimeDisplays() });
     } 
 
     const updateApp = (val = null) => {
         const state = (val) ? val : getCurrentState();
         displayState();
+        let currentLapListItemCollection;
         switch (state) {
             case trackingEvents.START:
+                lapList.insertBefore(tplListItem.content.cloneNode(true), lapList.firstChild);
+                currentLapListItemCollection = lapList.querySelectorAll('.list-item');
+                currentLapListItem = currentLapListItemCollection.item(0);
+                currentLapListItem.querySelector('div:nth-child(1)').textContent = currentLapListItemCollection.length
             case trackingEvents.CONTINUE:
                 console.log('sc');
                 bStartPauseContinue.removeEventListener('click', fStartContinue);
                 bStartPauseContinue.addEventListener('click', fPause);
                 bStop.style.display = '';
                 bLogLapTime.disabled = false;
-                bStartPauseContinue.textContent = 'Pause';
+                bStartPauseContinue.textContent = 'Stop';
                 break;
             case trackingEvents.PAUSE:
                 console.log('p');
@@ -480,13 +604,20 @@
                 bStartPauseContinue.addEventListener('click', fStartContinue);
                 bStop.style.display = 'block';
                 bLogLapTime.disabled = true;
-                bStartPauseContinue.textContent = 'Continue';
+                bStartPauseContinue.textContent = 'Weiter';
                 break;
             case trackingEvents.STOP:
                 console.log('st');
+                bLogLapTime.disabled = true;
+                bStartPauseContinue.textContent = 'Start';
+                bStop.style.display = '';
                 break;
             case trackingEvents.LAPTIME:
                 console.log('lt');
+                lapList.insertBefore(tplListItem.content.cloneNode(true), lapList.firstChild);
+                currentLapListItemCollection = lapList.querySelectorAll('.list-item');
+                currentLapListItem = currentLapListItemCollection.item(0);
+                currentLapListItem.querySelector('div:nth-child(1)').textContent = currentLapListItemCollection.length
                 break;
         }
         return state;
@@ -496,12 +627,8 @@
     const watchPosition = () => {
         if (myGeo) {
             watchPositionID = myGeo.watchPosition((position) => {
-                let newDataObject = {
-                    event: trackingEvents.POSITIONLOG,
-                    timestamp: Date.now()
-                };
+                let dataObject = addDataObject(trackingEvents.POSITIONLOG);
                 addPositionDataToTrackingEvent(newDataObject, position);
-                times.push(newDataObject);
             },(error) => {
                 console.log(error)
             },
@@ -565,24 +692,29 @@
             }
         }
         updateApp();
+        updateTimeDisplays();
     }
     const fPause = (e) => {
         addDataObject(trackingEvents.PAUSE);
         updateApp();
+        // updateTimeDisplays();
+        window.cancelAnimationFrame(animationId);
     }
     const fStop = (e) => {
-        bLogLapTime.disabled = true;
-        bStartPauseContinue.textContent = 'Start';
-        e.target.style.display = '';
+        // if we stop tracking the last event should be the last pause event. But if we have location tracking activated
+        // there still will be coming in POSITIONLOG events. If we stop/save the tracked action we don't want to have the exceeding
+        // position logs, so we truncate the trackingAction array from the  exceeding POSITIONLOG events and update the last pause event to be a stop event.
         let lastDataObject = getLastTrackingObject('pause');
-        trackedAction.splice(lastDataObject.index);
+        trackedAction.splice(lastDataObject.index + 1);
         lastDataObject.dataObject.event = trackingEvents.STOP;
-        addDataObject(trackingEvents.STOP, lastDataObject.dataObject);
+        setTrackedAction(trackedAction);
         updateApp();
+        // updateTimeDisplays();
     }
     const fLogLapTime = (e) => {
         addDataObject(trackingEvents.LAPTIME);
         updateApp();
+        // updateTimeDisplays();
     }
 
     // register eventListeners
@@ -596,4 +728,62 @@
     bStartPauseContinue.addEventListener('click', fStartContinue);
     bLogLapTime.addEventListener('click', fLogLapTime);
     bStop.addEventListener('click', fStop);
+
+    init();
+
+    let dataTest = () => {
+        let t = 1000000;
+        trackedAction = [];
+        setTrackedAction();
+        console.log(addDataObject(trackingEvents.START, t));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=1000));
+        console.log(addDataObject(trackingEvents.CONTINUE, t+=1000));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=1000));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=1000));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=1000));
+        console.log(addDataObject(trackingEvents.CONTINUE, t+=1000));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=1000));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=1000));
+
+        let lastDataObject = getLastTrackingObject('pause');
+        trackedAction.splice(lastDataObject.index + 1);
+        lastDataObject.dataObject.event = trackingEvents.STOP;
+        setTrackedAction(trackedAction);
+    }
+    let dataTest2 = () => {
+        let t = 1000000;
+        trackedAction = [];
+        setTrackedAction();
+        console.log(addDataObject(trackingEvents.START, t));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.CONTINUE, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.CONTINUE, t+=300));
+        console.log(addDataObject(trackingEvents.LAPTIME, t+=1000));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.PAUSE, t+=300));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+        console.log(addDataObject(trackingEvents.POSITIONLOG, t+=350));
+
+        let lastDataObject = getLastTrackingObject('pause');
+        trackedAction.splice(lastDataObject.index + 1);
+        lastDataObject.dataObject.event = trackingEvents.STOP;
+        setTrackedAction(trackedAction);
+    }
+    window.dataTest = dataTest2;
 })();
