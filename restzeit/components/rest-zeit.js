@@ -15,7 +15,7 @@ class restZeit extends HTMLElement {
             Restzeit
         </div>
         <div class="wrapper" style="position:relative; z-index:10; margin:12px 0px; display:flex; gap:16px; align-items:center">
-            <div class="_label">bis zum Mittag:</div>
+            <div class="_label label-lunch">bis zum Mittag:</div>
             <div style="display:flex">
                 <div id="remainingHoursLunch"></div>
                 <div id="colonLunch">:</div>
@@ -23,7 +23,7 @@ class restZeit extends HTMLElement {
             </div>
         </div>
         <div class="wrapper" style="margin:12px 0px; display:flex; gap:16px; align-items:center">
-            <div class="_label">bis zum 16:00 Uhr-Spaziergang:</div>
+            <div class="_label label-afternoon"">bis zum 16:00 Uhr-Spaziergang:</div>
             <div style="display:flex">
                 <div id="remainingHoursCoffee"></div>
                 <div id="colonCoffee">:</div>
@@ -31,7 +31,7 @@ class restZeit extends HTMLElement {
             </div>
         </div>
         <div class="wrapper" style="margin:12px 0px; display:flex; gap:16px; align-items:center">
-            <div class="_label">bis zum Feierabend:</div>
+            <div class="_label label-evening">bis zum Feierabend:</div>
             <div style="display:flex">
                 <div id="remainingHours"></div>
                 <div id="colon">:</div>
@@ -47,33 +47,127 @@ class restZeit extends HTMLElement {
 `;
     }
 
-    attributeChangedCallback(attrName, oldValue, newValue) {
-        if (newValue !== oldValue) {
-            this[attrName] = this.hasAttribute(attrName);
+    set lunch(lunch) {
+        if (!lunch) {
+            this.removeAttribute('lunch');
+        } else {
+            this.setAttribute('lunch', lunch);
         }
     }
+    get lunch() {
+        return this.getAttribute('lunch');
+    }
+
+    set afternoon(afternoon) {
+        if (!afternoon) {
+            this.removeAttribute('afternoon');
+        } else {
+            this.setAttribute('afternoon', afternoon);
+        }
+    }
+    get afternoon() {
+        return this.getAttribute('afternoon');
+    }
+
+    set evening(evening) {
+        if (!evening) {
+            this.removeAttribute('evening');
+        } else {
+            this.setAttribute('evening', evening);
+        }
+    }
+    get evening() {
+        return this.getAttribute('evening');
+    }
+
+    set lunchText(lunchText) {
+        if (!lunchText) {
+            this.removeAttribute('lunch-text');
+        } else {
+            this.setAttribute('lunch-text', lunchText);
+        }
+    }
+    get lunchText() {
+        return this.getAttribute('lunch-text');
+    }
+
+    set afternoonText(afternoonText) {
+        if (!afternoonText) {
+            this.removeAttribute('afternoon-text');
+        } else {
+            this.setAttribute('afternoon-text', afternoonText);
+        }
+    }
+    get afternoonText() {
+        return this.getAttribute('afternoon-text');
+    }
+
+    set eveningText(eveningText) {
+        if (!eveningText) {
+            this.removeAttribute('evening-text');
+        } else {
+            this.setAttribute('evening-text', eveningText);
+        }
+    }
+    get eveningText() {
+        return this.getAttribute('evening-text');
+    }
+
+    attributeChangedCallback(attrName, oldValue, newValue) {
+        switch(attrName) {
+            case 'lunch':
+                this.dataLunch.hour = newValue;
+                break;
+            case 'afternoon':
+                this.dataAfternoon.hour = newValue;
+                break;
+            case 'evening':
+                this.dataEvening.hour = newValue;
+                break;
+            case 'lunch-text':
+                this.shadowRoot.querySelector('.label-lunch').textContent = newValue;
+                break;
+            case 'afternoon-text':
+                this.shadowRoot.querySelector('.label-afternoon').textContent = newValue;
+                break;
+            case 'evening-text':
+                this.shadowRoot.querySelector('.label-evening').textContent = newValue;
+                break;
+            }
+    }
+
+    dataLunch = {}
+    dataAfternoon = {}
+    dataEvening = {}
+    
 
     connectedCallback() {
-        //this.doClock(this);
-        this.writeRemainingTime({
-            hour:12,
+        this.dataLunch = {
+            hour: this.lunch ?? 12,
             remainingHours: 'remainingHoursLunch',
             remainingMinutes: 'remainingMinutesLunch',
             colon:'colonLunch'
-        });
-        this.writeRemainingTime({
-            hour:16,
+        }
+        this.dataAfternoon = {hour:this.afternoon ?? 16,
             remainingHours: 'remainingHoursCoffee',
             remainingMinutes: 'remainingMinutesCoffee',
             colon:'colonCoffee'
-        });
-        this.writeRemainingTime({
-            hour:18,
+        }
+        this.dataEvening = {
+            hour:this.evening ?? 18,
             remainingHours: 'remainingHours',
             remainingMinutes: 'remainingMinutes',
             colon:'colon'
-        });
+        }
+        this.writeRemainingTime(this.dataLunch);
+        this.writeRemainingTime(this.dataAfternoon);
+        this.writeRemainingTime(this.dataEvening);
     }
+
+    static get observedAttributes() {
+        return ['lunch', 'afternoon', 'evening', 'lunch-text', 'afternoon-text', 'evening-text'];
+    }
+
     writeRemainingTime(options){
         var obj = this;
         var currentTime = new Date(new Date().setSeconds(0)).setMilliseconds(0);

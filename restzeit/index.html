@@ -37,15 +37,166 @@
             font-size: 6vw;
           }
         }
+        button[data-action="open-settings"] {
+            border:1px solid #cccccc;
+            color:#cccccc;
+            border-radius:40px;
+            padding:12px 12px;
+            background:transparent;
+            position:fixed;
+            bottom:20px;
+            left:20px;
+            z-index:10;
+        }
+        .modal-settings {
+            position:fixed;
+            padding:0 20px;
+            left:0; top:0; right:0; bottom:0;
+            background:#888888;
+            display:none;
+            grid-template-rows: 80px 1fr80px;
+            gap:4px;
+            z-index:20;
+        }
+        .modal-settings div div {
+            padding:0;
+            margin:8px;
+        }
+        button[data-action="close-settings"] {
+            font-size:1.6rem;
+            border-radius:200px;
+            border:1px solid #888;
+            display:block;
+            padding:8px 23px;
+            min-width:fit-content;
+            width:45%;
+            cursor:pointer;
+            background:#eee;
+        }
+        .modal-settings div div:nth-child(2),
+          .modal-settings div div:nth-child(4) {
+            padding:0;
+            margin-bottom:16px;
+        }
+        .modal-settings div div {
+            display:flex;
+            gap:8px;
+            align-items:center;
+            font-size:1.6rem;
+        }
+        .modal-settings input[type="number"] {
+            width:64px;
+            height:24px;
+        }
+        .modal-settings input[type="text"] {
+            width:450px;
+            height:24px;
+        }
 
         @media (orientation: portrait) {
           rest-zeit {
             font-size: 6vw;
           }
-        
+        }
     </style>
 </head>
 <body>
-    <rest-zeit></rest-zeit>
+    <rest-zeit lunch="13" afternoon="15" evening="17" afternoon-text="bis zum Kaffee"></rest-zeit>
+    <button data-action="open-settings">•••</button>
+    <div class="modal-settings">
+      <div></div>
+      <div>
+        <div><input type="number" data-action="lunch-time" name="lunch-time"> Zeit 1</div>
+        <div><input type="text" data-action="lunch-text" name="lunch-text"> Text für Zeit 1</div>
+        <div><input type="number" data-action="afternoon-time" name="afternoon-time"> Zeit 2</div>
+        <div><input type="text" data-action="afternoon-text" name="afternoon-text"> Text für Zeit 2</div>
+        <div><input type="number" data-action="evening-time" name="evening-time"> Zeit 3</div>
+        <div><input type="text" data-action="evening-text" name="evening-text"> Text für Zeit 3</div>
+      </div>
+      
+      <div><button data-action="close-settings">Sichern</button></div>
+  </div>
+  <script>
+    let appSettings = null;
+    const rZ = document.querySelector('rest-zeit');
+    const setAppSettings = (obj = null) => {
+        if (obj === null) {
+            localStorage.removeItem('appSettings');
+            return;
+        }
+        localStorage.setItem('appSettings', JSON.stringify(obj));
+    }
+    const getAppSettings = () => {
+        return (localStorage.getItem('appSettings')) ? JSON.parse(localStorage.getItem('appSettings')) : null;
+    }
+    const updateTimer = (settings) => {
+      rZ.lunch = settings.lunchTime
+      rZ.lunchText = settings.lunchText
+      rZ.afternoon = settings.afternoonTime
+      rZ.afternoonText = settings.afternoonText
+      rZ.evening = settings.eveningTime
+      rZ.eveningText = settings.eveningText
+    }
+    
+    const setDefaultSettings = () => {
+        if (!getAppSettings()) {
+            setAppSettings(
+              {
+                lunchTime: 13,
+                lunchText: 'bis zum Mittag',
+                afternoonTime: 15,
+                afternoonText: 'bis zum Kaffee',
+                eveningTime: 17,
+                eveningText: 'bis zum Feierabend',
+              }
+            );
+        }
+        updateTimer(getAppSettings());
+      }
+    setDefaultSettings();
+    appSettings = getAppSettings();
+
+
+    const modalSettings =  document.querySelector('.modal-settings');
+    const bOpenSettings = document.querySelector('button[data-action="open-settings"]');
+    const bCloseSettings = document.querySelector('button[data-action="close-settings"]');
+    
+    const inpLunchTime = modalSettings.querySelector('input[name="lunch-time"]');
+    const inpLunchText = modalSettings.querySelector('input[name="lunch-text"]');
+    const inpAfternoonTime = modalSettings.querySelector('input[name="afternoon-time"]');
+    const inpAfternoonText = modalSettings.querySelector('input[name="afternoon-text"]');
+    const inpEveningTime = modalSettings.querySelector('input[name="evening-time"]');
+    const inpeveningText = modalSettings.querySelector('input[name="evening-text"]');
+
+    const fCloseSettings = () => {
+        modalSettings.style.display = '';
+        setAppSettings({
+            lunchTime: inpLunchTime.value,
+            lunchText: inpLunchText.value,
+            afternoonTime: inpAfternoonTime.value,
+            afternoonText: inpAfternoonText.value,
+            eveningTime: inpEveningTime.value,
+            eveningText: inpeveningText.value,
+        });
+        updateTimer(getAppSettings());
+    }
+    const fOpenSettings = () => {
+      modalSettings.style.display = 'grid';
+      fillSettingsForm(getAppSettings());
+    }
+    bOpenSettings.addEventListener('click', fOpenSettings);
+    bCloseSettings.addEventListener('click', fCloseSettings);
+
+    const fillSettingsForm = (obj) => {
+      inpLunchTime.value = obj.lunchTime;
+      inpLunchText.value = obj.lunchText;
+      inpAfternoonTime.value = obj.afternoonTime;
+      inpAfternoonText.value = obj.afternoonText;
+      inpEveningTime.value = obj.eveningTime;
+      inpeveningText.value = obj.eveningText;
+    }
+
+
+</script>
 </body>
 </html>
