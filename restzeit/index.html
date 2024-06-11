@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#223344ff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="apple-touch-icon" sizes="180x180" href="res/art/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="res/art/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="res/art/icons/favicon-16x16.png">
@@ -32,11 +32,6 @@
             justify-content:center;
             color:#cccccc;
         }
-        @media (orientation: landscape) {
-          rest-zeit {
-            font-size: 6vw;
-          }
-        }
         button[data-action="open-settings"] {
             border:1px solid #cccccc;
             color:#cccccc;
@@ -53,17 +48,17 @@
             padding:0 20px;
             left:0; top:0; right:0; bottom:0;
             background:#888888;
-            display:none;
+            display:none;;
             grid-template-rows: 80px 1fr80px;
             gap:4px;
             z-index:20;
         }
-        .modal-settings div div {
+        .modal-settings > div > div {
             padding:0;
-            margin:8px;
+            margin:4px;
         }
         button[data-action="close-settings"] {
-            font-size:1.6rem;
+            font-size:1.0rem;
             border-radius:200px;
             border:1px solid #888;
             display:block;
@@ -73,32 +68,76 @@
             cursor:pointer;
             background:#eee;
         }
-        .modal-settings div div:nth-child(2),
-          .modal-settings div div:nth-child(4) {
+        .modal-settings > div > div {
             padding:0;
-            margin-bottom:16px;
+            margin-bottom:10px;
         }
-        .modal-settings div div {
+        .modal-settings > div > div {
             display:flex;
             gap:8px;
             align-items:center;
-            font-size:1.6rem;
+            font-size:1.0rem;
+        }
+        .modal-settings > div > div > div {
+            display:flex;
+            gap:8px;
+            align-items:center;
+            font-size:1.0rem;
         }
         .modal-settings input[type="number"] {
             width:64px;
             height:24px;
         }
         .modal-settings input[type="text"] {
-            width:450px;
+            width:350px;
             height:24px;
         }
 
-        @media (orientation: portrait) {
+        @media (orientation: landscape) {
+          body {
+/*             background:#883344ff; */
+          }
           rest-zeit {
             font-size: 6vw;
           }
         }
+        @media (orientation: portrait) {
+          rest-zeit {
+            font-size: 6vw;
+          }
+            .modal-settings > div > div {
+                flex-direction:column;
+                align-items:flex-start;
+            }
+            .modal-settings > div > div > div {
+                flex-direction:column;
+                align-items:flex-start;
+            }
+            .modal-settings input[type="number"] {
+                width:64px;
+                height:24px;
+            }
+            .modal-settings input[type="text"] {
+                width:300px;
+                height:24px;
+            }
+            .modal-settings div div label {
+                order:1;
+            }
+            .modal-settings div div input {
+                order:2;
+            }
+        }
     </style>
+    <script>
+    let myColor = '#223344';
+    if (localStorage.getItem('appSettings')) {
+        let s = JSON.parse(localStorage.getItem('appSettings'));
+        myColor = s.color;
+    }
+    let styleSheet = document.querySelector('style');
+    styleSheet.sheet.cssRules.item(1).style.background = myColor
+    </script>
 </head>
 <body>
     <rest-zeit lunch="13" afternoon="15" evening="17" afternoon-text="bis zum Kaffee"></rest-zeit>
@@ -106,12 +145,21 @@
     <div class="modal-settings">
       <div></div>
       <div>
-        <div><input type="number" data-action="lunch-time" name="lunch-time"> Zeit 1</div>
-        <div><input type="text" data-action="lunch-text" name="lunch-text"> Text für Zeit 1</div>
-        <div><input type="number" data-action="afternoon-time" name="afternoon-time"> Zeit 2</div>
-        <div><input type="text" data-action="afternoon-text" name="afternoon-text"> Text für Zeit 2</div>
-        <div><input type="number" data-action="evening-time" name="evening-time"> Zeit 3</div>
-        <div><input type="text" data-action="evening-text" name="evening-text"> Text für Zeit 3</div>
+        <div>
+            <div><input type="color" data-action="color" name="color"> <label>Farbe</div>
+        </div>
+        <div>
+            <div><input type="number" min="0" max="24" step="1" data-action="lunch-time" name="lunch-time"> <label>Zeit 1</div>
+            <div><input type="text" data-action="lunch-text" name="lunch-text"> <label>Text für Zeit 13</label></div>
+        </div>
+        <div>
+            <div><input type="number" min="0" max="24" step="1" data-action="afternoon-time" name="afternoon-time"> <label>Zeit 23</label></div>
+            <div><input type="text" data-action="afternoon-text" name="afternoon-text"> <label>Text für Zeit 23</label></div>
+        </div>
+        <div>
+            <div><input type="number" min="0" max="24" step="1" data-action="evening-time" name="evening-time"> <label>Zeit 33</label></div>
+            <div><input type="text" data-action="evening-text" name="evening-text"> <label>Text für Zeit 3</label></div>
+        </div>
       </div>
       
       <div><button data-action="close-settings">Sichern</button></div>
@@ -142,6 +190,7 @@
         if (!getAppSettings()) {
             setAppSettings(
               {
+                color: '#223344',
                 lunchTime: 13,
                 lunchText: 'bis zum Mittag',
                 afternoonTime: 15,
@@ -161,6 +210,7 @@
     const bOpenSettings = document.querySelector('button[data-action="open-settings"]');
     const bCloseSettings = document.querySelector('button[data-action="close-settings"]');
     
+    const inpColor = modalSettings.querySelector('input[name="color"]');
     const inpLunchTime = modalSettings.querySelector('input[name="lunch-time"]');
     const inpLunchText = modalSettings.querySelector('input[name="lunch-text"]');
     const inpAfternoonTime = modalSettings.querySelector('input[name="afternoon-time"]');
@@ -171,6 +221,7 @@
     const fCloseSettings = () => {
         modalSettings.style.display = '';
         setAppSettings({
+            color: inpColor.value,
             lunchTime: inpLunchTime.value,
             lunchText: inpLunchText.value,
             afternoonTime: inpAfternoonTime.value,
@@ -179,6 +230,7 @@
             eveningText: inpeveningText.value,
         });
         updateTimer(getAppSettings());
+        styleSheet.sheet.cssRules.item(1).style.background = inpColor.value;
     }
     const fOpenSettings = () => {
       modalSettings.style.display = 'grid';
@@ -188,6 +240,7 @@
     bCloseSettings.addEventListener('click', fCloseSettings);
 
     const fillSettingsForm = (obj) => {
+      inpColor.value = obj.color;
       inpLunchTime.value = obj.lunchTime;
       inpLunchText.value = obj.lunchText;
       inpAfternoonTime.value = obj.afternoonTime;
@@ -195,8 +248,6 @@
       inpEveningTime.value = obj.eveningTime;
       inpeveningText.value = obj.eveningText;
     }
-
-
 </script>
 </body>
 </html>
